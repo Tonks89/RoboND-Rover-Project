@@ -3,7 +3,7 @@ import cv2
 
 
 # Detection (thresholding)
-def color_thresh(img, rgb_thresh=(160, 160, 160),rgb_lowthresh=(8, 5, 3), b_thresh=(165,255)):
+def color_thresh(img, rgb_thresh=(160, 160, 160), b_thresh=(165,255)):
     
     # ----> Navigable terrain  
     # Create an array of zeros same xy size as img, but single channel
@@ -21,12 +21,13 @@ def color_thresh(img, rgb_thresh=(160, 160, 160),rgb_lowthresh=(8, 5, 3), b_thre
     
     # ----> Obstacles
     obstacle_select = np.zeros_like(img[:,:,0])
-    below_thresh = (img[:,:,0] < 76) \
-                & (img[:,:,1] < 60) \
-                & (img[:,:,2] < 28) \
-                &(img[:,:,0] > rgb_lowthresh[0]) \
-                & (img[:,:,1] > rgb_lowthresh[1]) \
-                & (img[:,:,2] > rgb_lowthresh[2])
+    below_thresh = (img[:,:,0] < rgb_thresh[0]) \
+                & (img[:,:,1] < rgb_thresh[0]) \
+                & (img[:,:,2] < rgb_thresh[0]) \
+                & (img[:,:,0] > 0)\
+                & (img[:,:,1] > 0)\
+                & (img[:,:,2] > 0)
+    
     obstacle_select[below_thresh] = 1
     
     
