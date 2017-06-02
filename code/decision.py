@@ -10,18 +10,33 @@ def decision_step(Rover):
     # improve on this decision tree to do a good job of navigating autonomously!
 
     # Example:
-    min_ahead = 20 ###*
-    #Rover.stop_forward = 200 ###*
-    
-    
+    min_ahead = 25 ###*
+    #Rover.stop_forward = 200 ###*  
     
     # Check if we have vision data to make decisions with
     if Rover.nav_angles is not None:
         
-       # Number of navigable pixels in steering direction
+        # Number of navigable pixels in steering direction
         angles_list = list(Rover.nav_angles) ###*
         navigable_indir = angles_list.count(0) ###*
         
+        
+        # Navigable distance in boundaries of field of view
+        #dist_list = list(Rover.nav_dists)
+        
+        #b1_angle = min(angles_list)
+        #b2_angle = max(angles_list)
+        #b1_idx = angles_list.index(b1_angle)
+        #b2_idx = angles_list.index(b2_angle)
+         
+        
+        #b1_dist = dist_list[b1_idx]
+        #b2_dist = dist_list[b2_idx]
+          
+            
+     
+        
+       
         # Number of navigable, continuos pixels in steering direction
         
         
@@ -41,7 +56,8 @@ def decision_step(Rover):
                 Rover.brake = 0
                 # Set steering to average angle clipped to the range +/- 15
                 Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi), -15, 15)
-            # If there's a lack of navigable terrain pixels then go to 'stop' mode
+            # If there's a lack of navigable terrain pixels then go to 'stop' mode (not enough area to move, 
+            # not enough distance ahead).
             elif len(Rover.nav_angles) < Rover.stop_forward  or navigable_indir < min_ahead: ###*
                     # Set mode to "stop" and hit the brakes!
                     Rover.throttle = 0
@@ -60,12 +76,65 @@ def decision_step(Rover):
             # If we're not moving (vel < 0.2) then do something else
             elif Rover.vel <= 0.2:
                 # Now we're stopped and we have vision data to see if there's a path forward
+                # If there's a lack of navigable terrain turn!
                 if len(Rover.nav_angles) < Rover.go_forward or navigable_indir < min_ahead: ###*
                     Rover.throttle = 0
                     # Release the brake to allow turning
                     Rover.brake = 0
+                    
                     # Turn range is +/- 15 degrees, when stopped the next line will induce 4-wheel turning
-                    Rover.steer = -15 # Could be more clever here about which way to turn*****
+                    #Rover.steer = -15 # Could be more clever here about which way to turn*****
+                    
+                    
+                    # Turning angle: angle w/ highest num. navigable pix.
+                    # Note if several dirs with = num pixels it will turn toward first in scanned_angles
+                    angles_int = np.rint(Rover.nav_angles) # convert float to int
+                    angles_int_list = list(angles_int.astype(int))
+                    
+    
+                    
+                    b1_angle = min(angles_int_list)
+                    b2_angle = max(angles_int_list)
+       
+                    npix_all_angles = []
+                    scanned_angles = list(range(b1_angle, b2_angle, 1))
+                    
+                    if 0 in scanned_angles:
+                        scanned_angles.remove(0) # otherwise it wont turn and be stuck
+
+                    for ang in scanned_angles: # every 5 degrees check number of navig pixel
+                        npix_angle = angles_int_list.count(ang)
+                        npix_all_angles.append(npix_angle)
+                        
+                    idx_turn = npix_all_angles.index(max(npix_all_angles)) #get idx of angle with most pix
+                    dir_turn = scanned_angles[idx_turn] #get corresponding angle
+                    Rover.steer = dir_turn
+                    
+                    # Decide best direction to steer
+                    #if b1_dist > b2_dist: # Terrain looks better in b1 direction
+                        
+                        #if b1_angle >= -15 and b1_angle <= 15:
+                            #Rover.steer = b1_angle
+                        #elif b1_angle < -15:
+                            #Rover.steer = -15
+                        #else:
+                            #Rover.steer = 15
+                                                        
+                    #elif b2_dist > b1_dist: # Terrain looks better in b2 direction
+                        #if b2_angle >= -15 and b2_angle <= 15:
+                            #Rover.steer = b2_angle
+                        #elif b2_angle < -15:
+                            #Rover.steer = -15
+                        #else:
+                            #Rover.steer = 15  
+                            
+                    #else:
+                            #Rover.steer = -15
+                        
+                        #pass # if dist are same check again if we can forward
+                        
+                    
+                    
                 # If we're stopped but see sufficient navigable terrain in front then go!
                 if len(Rover.nav_angles) >= Rover.go_forward and navigable_indir >= min_ahead: ###*
                     # Set throttle back to stored value
