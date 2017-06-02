@@ -46,6 +46,28 @@ def color_thresh(img, rgb_thresh=(160, 160, 160), b_thresh=(165,255)):
     return navigable_select,obstacle_select,rock_binary
 
 
+
+
+# Function to reduce noise cause by perspective transform
+def noise_reduction(thresh_img, xorigin, yorigin, radius):
+    
+    x_thresh, y_thresh = thresh_img.nonzero()
+    pix_thresh = zip(x_thresh, y_thresh)
+    
+    # Determine if navigable pixel is noise or not
+    for x_pixel, y_pixel in pix_thresh:
+        dist = np.sqrt((x_pixel - xorigin)**2 + (y_pixel - yorigin)**2)
+        
+        if dist <= radius:
+            # keep value
+            pass
+        else:
+            # dismiss as noise
+            thresh_img[x_pixel][y_pixel] = 0
+    
+    return thresh_img
+
+
 # Define a function to convert to rover-centric coordinates
 def rover_coords(binary_img):
     # Identify nonzero pixels
@@ -73,8 +95,8 @@ def rotate_pix(xpix, ypix, yaw):
     # Convert yaw to radians
     yaw_rad = yaw * (np.pi/180)
     # Apply a rotation
-    xpix_rotated = xpix * np.cos(yaw_rad) - ypix * np.sin(yaw_rad)
-    ypix_rotated = xpix * np.sin(yaw_rad) + ypix * np.cos(yaw_rad)
+    xpix_rotated = (xpix * np.cos(yaw_rad)) - (ypix * np.sin(yaw_rad))
+    ypix_rotated = (xpix * np.sin(yaw_rad)) + (ypix * np.cos(yaw_rad))
     # Return the result  
     return xpix_rotated, ypix_rotated
 
@@ -130,9 +152,16 @@ def perception_step(Rover):
 
     # 2) Apply perspective transform
     warped = perspect_transform(img, source, destination)
+    
 
     # 3) Apply color threshold to identify navigable terrain/obstacles/rock samples
-    navigable, obstacles, rocks = color_thresh(warped)
+    navigable1, obstacles, rocks = color_thresh(warped) # cambiar!!!!!!!!!!! puse nav1
+   
+    xorigin = navigable1.shape[1]/2
+    yorigin = navigable1.shape[0]
+    radius = 70
+    navigable = noise_reduction(navigable1, xorigin, yorigin, radius)
+   
 
     # 4) Update Rover.vision_image (this will be displayed on left side of screen)
         # Example: Rover.vision_image[:,:,0] = obstacle color-thresholded binary image
@@ -142,11 +171,13 @@ def perception_step(Rover):
     Rover.vision_image[:,:,0] = obstacles*255
     Rover.vision_image[:,:,1] = rocks*255
     Rover.vision_image[:,:,2] = navigable*255
+    
 
     # 5) Convert map image pixel values to rover-centric coords
     navigable_xpix, navigable_ypix = rover_coords(navigable)
     obstacles_xpix, obstacles_ypix = rover_coords(obstacles)
     rocks_xpix, rocks_ypix = rover_coords(rocks)
+    
 
     # 6) Convert rover-centric pixel values to world coordinates
     world_size = Rover.worldmap.shape[0];
@@ -165,7 +196,6 @@ def perception_step(Rover):
     Rover.worldmap[obstacles_y_world, obstacles_x_world, 0] += 1 
     Rover.worldmap[rocks_y_world, rocks_x_world, 1] += 1 
     Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1 
-
 
 
     # 8) Convert rover-centric pixel positions to polar coordinates
