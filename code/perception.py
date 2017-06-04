@@ -27,7 +27,6 @@ def color_thresh(img, rgb_thresh=(160, 160, 160), b_thresh=(165,255)):
                 & (img[:,:,0] > 0)\
                 & (img[:,:,1] > 0)\
                 & (img[:,:,2] > 0)
-    
     obstacle_select[below_thresh] = 1
     
     
@@ -48,7 +47,7 @@ def color_thresh(img, rgb_thresh=(160, 160, 160), b_thresh=(165,255)):
 
 
 
-# Function to reduce noise cause by perspective transform
+# Function to reduce distortion caused by perspective transform
 def noise_reduction(thresh_img, xorigin, yorigin, radius):
     
     x_thresh, y_thresh = thresh_img.nonzero()
@@ -155,7 +154,7 @@ def perception_step(Rover):
     
 
     # 3) Apply color threshold to identify navigable terrain/obstacles/rock samples
-    navigable1, obstacles, rocks = color_thresh(warped) # cambiar!!!!!!!!!!! puse nav1
+    navigable1, obstacles, rocks = color_thresh(warped)
    
     xorigin = navigable1.shape[1]/2
     yorigin = navigable1.shape[0]
