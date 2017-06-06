@@ -1,12 +1,21 @@
 # Project: Search and Sample Return
 
 ---
+[//]: # (Image References)
+
+[pr_image1]: ./misc/pr_image1.png
+[pr_image0]: ./misc/pr_image0.png
+[pr_image2]: ./misc/pr_image2.png
+[pr_image3]: ./misc/pr_image3.png
+[nav_image0]: ./misc/nav_image.png
+[pr_video]: .output/mydata_mapping_final
+
 
 ## Introduction
 
 The objective of this project was to enable a rover to navigate autonmously in an unknown environment by developing its ability perceive and decide.
 
-*video*
+![alt text][nav_image0]
 
 The goals / steps of this project are the following:  
 
@@ -24,13 +33,6 @@ The goals / steps of this project are the following:
 * Fill in the `decision_step()` function within the `decision.py` script with conditional statements that take into consideration the outputs of the `perception_step()` in deciding how to issue throttle, brake and steering commands. 
 * Iterate on your perception and decision function until your rover does a reasonable (need to define metric) job of navigating and mapping.  
 
-[//]: # (Image References)
-
-[pr_image1]: ./misc/pr_image1.png
-[pr_image0]: ./misc/pr_image0.png
-[pr_image2]: ./misc/pr_image2.png
-[pr_image3]: ./misc/pr_image3.png
-[pr_video]: .output/mydata_mapping_final
 
 ---
 ## Training / Calibration (Notebook Analysis)
@@ -113,6 +115,7 @@ The above image also shows the navigable direction for steering, which is the me
 The previous image processing steps were applied on a pre-recorded images while driving the rover in "training" mode. The video below shows the resulting processed image sequence:
 
 ![](./misc/mydata_mapping_final.gif)
+
 Click [here](https://www.youtube.com/watch?v=QTcLjp4bDvg) for the video.
 
 
@@ -184,17 +187,14 @@ elif Rover.mode == 'stop':
 
 After implementing the previous perception and decision steps. The rover was launched in autonomous mode several times. A mean of its performance was made over 10 trials with respect to the base requirements for the project. The rover is able to map at least 40% of the terrain with an accuracy of approximately 81% while finding at least a rock.
 
-The rover is of course capable of mapping more terrain and finding more rocks, but the previous statistics were computed to compare its performance with the base requirements.
+The rover is of course capable of mapping more terrain and finding more rocks, but the previous statistics were computed to compare its performance with the base requirements. 
 
-Here is a video of one of the best results that were achieved:
-
-*video or link*
-
-
-Note on simulator settings: A resolution of 1280 x 720, graphics quality "Good", and 12 FPS  were used for this simulation.
+Click [here](https://www.youtube.com/watch?v=t6gBQkwMJ14) to see a video on these results. Note on simulator settings: A resolution of 1280 x 720, graphics quality "Good", and 12 FPS  were used for this simulation.
 
 
 However, there are a number of improvements that I still wish to implement:
+
+* Improve the choice of steering direction while moving forward: Currently the rover's steering direction is computed as the mean angle of the navigable pixels. However, this creates a bit of oscillation (left to right) while moving forward because the roads are not perfectly straight. I would like to improve this and make the rover less sensitive to road curves, thus, decreasing this oscillation while moving forward.
 
 * Improve the choice of steering direction when in stop mode: Currently the rover turns -15 degrees after being stopped until it finds enough navigable terrain. I would like to improve this by making the robot check the navigable terrain around him at predefined intervals (from 0 to 360 degrees) and selecting the direction with the highest number of navigable pixels.
 
@@ -202,9 +202,7 @@ However, there are a number of improvements that I still wish to implement:
 
 * Improve the obstacle avoidance: With the conditions that were added to the decision tree the robot generally avoids obstacles, however, I did witnessed in 1/10 simulations that he passed too close to small obstacles. Furthermore, the conditions are not robust enough to guarantee that small obstacles will always be avoided. To improve this, I would like to implement a method that checks the shape of the navigable areas to the left and right of the robot's frame to ensure that they are wide enough and obstacle free. This would be a more robust way to decide where to navigate as opposed to checking the number of pixels to the left and right of the robot's frame.
 
-* Improve the choice of steering direction while moving forward: Currently the rover's steering direction is computed as the mean angle of the navigable pixels. However, this creates a bit of oscillation (left to right) while moving forward because the roads are not perfectly straight. I would like to improve this and make the rover less sensitive to road curves, thus, decreasing this oscillation while moving forward.
-
-* Finally, I noticed sometime rock are correctly detected, but not counted. I also realized that the code on the master branch was updated to improve rock counting. I will work on updating/merging my code with the latest version to fix this.
+* Finally, I noticed rocks are correctly detected, but are sometimes not counted. I also realized that the code on the master branch was updated to improve rock counting. I will work on updating/merging my code with the latest version to fix this.
 
 
 
