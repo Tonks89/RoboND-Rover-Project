@@ -40,16 +40,16 @@ The goals / steps of this project are the following:
 
 After recording a series of images with the rover in "training" mode, an image processing pipeline was designed. The purpose of this pipeline was to extract useful information from the robot's sensors to guide it during autonomous navigation. To do this, the following operations were used and tested: Perspective transform, color thresholding, noise reduction and coordinate transformations.
 
-#### 1. Perspective transform (provided): To transform the images from the robot's point of view to top-down view. 
+#### 1. Perspective transform (provided): To transform the images from the robot's point of view to a top-down view. 
 
 #### 2. Color thresholding (modified): To detect the navigable terrain, obstacles, and rock samples of interest.
 
 The navigable terrain is represented by the lightest color in the scene. Therefore, all the pixels above the suggested RGB threshold (160, 160, 160) were classified as navigable terrain.
 
-On the other hand, obstacles are represented by the darkest colors in the scene. Thus, an upper and lower RGB thresholded were used for detection. The upper threshold was the same as above (160, 160, 160), while the lower threshold was set to (0,0,0) to avoid classifying black pixels as obstacles. Such pixels are a result of the perspective transform and are do not represent objects in the scene.
+On the other hand, obstacles are represented by the darkest colors in the scene. Thus, an upper and lower RGB thresholded were used for detection. The upper threshold was the same as above (160, 160, 160), while the lower threshold was set to (0,0,0) to avoid classifying black pixels as obstacles. Such pixels are a result of the perspective transform and do not represent objects in the scene.
 
 Finally, the yellow rock samples were detected by converting the images into the [LAB color space](https://en.wikipedia.org/wiki/Lab_color_space) and then applying a threshold.
-This color space describes colors using 3 channels: L (lightness), a (green-red), b (blue-yellow). The b-channel was used with a positive/high threshold (165,255) to detect yellow objects in the scene. This approach was chosen because it is not sensitive to lighting conditions, as it separates lightness from the colors themselves, resulting in a more robust detection.
+This color space describes colors using 3 channels: L (lightness), a (green-red), b (blue-yellow). The b-channel was used with a positive/high threshold (165, 255) to detect yellow objects in the scene. This approach was chosen because it is not sensitive to lighting conditions, as it separates lightness from the colors themselves, resulting in a more robust detection.
 
 ``` python
     # convert from RGB to LAB
@@ -112,7 +112,7 @@ The above image also shows the navigable direction for steering, which is the me
 
 #### II. Populate the `process_image()` function with the appropriate analysis steps to map pixels identifying navigable terrain, obstacles and rock samples into a worldmap.  Run `process_image()` on your test data using the `moviepy` functions provided to create video output of your result. 
 
-The previous image processing steps were applied on a pre-recorded images while driving the rover in "training" mode. The video below shows the resulting processed image sequence:
+The previous image processing steps were applied on pre-recorded images while driving the rover in "training" mode. The video below shows the resulting processed image sequence:
 
 ![](./misc/mydata_mapping_final.gif)
 
@@ -123,7 +123,7 @@ Click [here](https://www.youtube.com/watch?v=QTcLjp4bDvg) for the video.
 
 ### Autonomous Navigation and Mapping
 
-#### 1. Fill in the `perception_step()` (at the bottom of the `perception.py` script) and `decision_step()` (in `decision.py`) functions in the autonomous mapping scripts and an explanation is provided in the writeup of how and why these functions were modified as they were.
+#### 1. Fill in the `perception_step()` (at the bottom of the `perception.py` script) and `decision_step()` (in `decision.py`) functions in the autonomous mapping scripts.
 
 #### Perception step 
 
@@ -133,7 +133,7 @@ This step consisted in extracting useful features from the rover's collected ima
 
 * Retrieve current image from the rover's camera
 * Apply a perspective transform
-* Apply color threshold to identify obstacles, rocks, navigable terrain & reduce distortions on navigable terrain:
+* Apply color threshold to identify obstacles, rocks, navigable terrain and reduce distortions on navigable terrain:
 
 ``` python
 navigable1, obstacles, rocks = color_thresh(warped)
@@ -180,6 +180,9 @@ elif Rover.mode == 'stop':
                 # Now we're stopped and we have vision data to see if there's a path forward
                 # If there's a lack of navigable terrain turn!
                 if navigable_L < go_areaLR or navigable_R < go_areaLR or navigable_indir < min_ahead:
+                    ...
+                # If we're stopped but see sufficient navigable terrain in front then go!
+                if navigable_L >= go_areaLR and navigable_R >= go_areaLR and navigable_indir >= min_ahead: 
                     ...
 ```
 
