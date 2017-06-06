@@ -48,12 +48,12 @@ def color_thresh(img, rgb_thresh=(160, 160, 160), b_thresh=(165,255)):
 
 
 # Function to reduce distortion caused by perspective transform
-def noise_reduction(thresh_img, xorigin, yorigin, radius):
+def distortion_reduction(thresh_img, xorigin, yorigin, radius):
     
     x_thresh, y_thresh = thresh_img.nonzero()
     pix_thresh = zip(x_thresh, y_thresh)
     
-    # Determine if navigable pixel is noise or not
+    # Determine if navigable pixel is distortion or not
     for x_pixel, y_pixel in pix_thresh:
         dist = np.sqrt((x_pixel - xorigin)**2 + (y_pixel - yorigin)**2)
         
@@ -61,7 +61,7 @@ def noise_reduction(thresh_img, xorigin, yorigin, radius):
             # keep value
             pass
         else:
-            # dismiss as noise
+            # dismiss as distortion
             thresh_img[x_pixel][y_pixel] = 0
     
     return thresh_img
@@ -159,7 +159,7 @@ def perception_step(Rover):
     xorigin = navigable1.shape[1]/2
     yorigin = navigable1.shape[0]
     radius = 70
-    navigable = noise_reduction(navigable1, xorigin, yorigin, radius)
+    navigable = distortion_reduction(navigable1, xorigin, yorigin, radius)
    
 
     # 4) Update Rover.vision_image (this will be displayed on left side of screen)
